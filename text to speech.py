@@ -10,16 +10,16 @@ Label(root, text = "TEXT_TO_SPEECH", font = "arial 20 bold", bg='white smoke').p
 Label(text ="Your_name", font = 'arial 15 bold', bg ='white smoke' , width = '20').pack(side = 'bottom')
 Msg = StringVar()
 Label(root,text ="Enter Text", font = 'arial 15 bold', bg ='white smoke').place(x=20,y=60)
-entry_field = Entry(root, textvariable = Msg ,width ='80')
-entry_field.place(x=20,y=100)
+entry_field = Entry(root, textvariable = Msg ,width ='55')
+entry_field.place(x=8,y=100)
 def Text_to_speech():
     Message = entry_field.get()
     speech = gTTS(text = Message)
-    speech.save('d.mp3')
-    playsound('d.mp3')
+    speech.save('audio.mp3')
+    playsound('audio.mp3')
 def Exit():
     root.destroy()
-    os.remove('d.mp3')
+    os.remove('audio.mp3')
 def Reset():
     Msg.set("")
     os.remove('d.mp3')
