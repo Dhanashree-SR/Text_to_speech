@@ -1,29 +1,88 @@
-from tkinter import *
+import streamlit as st
 from gtts import gTTS
-from playsound import playsound
 import os
-root = Tk()
-root.geometry("350x300") 
-root.configure(bg='ghost white')
-root.title("TEXT TO SPEECH")
-Label(root, text = "TEXT_TO_SPEECH", font = "arial 20 bold", bg='white smoke').pack()
-Label(text ="Your_name", font = 'arial 15 bold', bg ='white smoke' , width = '20').pack(side = 'bottom')
-Msg = StringVar()
-Label(root,text ="Enter Text", font = 'arial 15 bold', bg ='white smoke').place(x=20,y=60)
-entry_field = Entry(root, textvariable = Msg ,width ='55')
-entry_field.place(x=8,y=100)
-def Text_to_speech():
-    Message = entry_field.get()
-    speech = gTTS(text = Message)
-    speech.save('audio.mp3')
-    playsound('audio.mp3')
-def Exit():
-    root.destroy()
-    os.remove('audio.mp3')
-def Reset():
-    Msg.set("")
-    os.remove('d.mp3')
-Button(root, text = "PLAY", font = 'arial 15 bold' , command = Text_to_speech ,width = '4').place(x=25,y=140)
-Button(root, font = 'arial 15 bold',text = 'EXIT', width = '4' , command = Exit, bg = 'OrangeRed1').place(x=100 , y = 140)
-Button(root, font = 'arial 15 bold',text = 'RESET', width = '6' , command = Reset).place(x=175 , y = 140)
-root.mainloop()
+import time  # For simulating the time delay
+from langid import classify  # For detecting language of input text
+
+# Set page config with title and favicon
+st.set_page_config(page_title="Multi-Language Text to Speech", page_icon="🌍")
+
+# Supported Languages
+languages = {
+    "English": "en",
+    "Tamil": "ta",
+    "Spanish": "es",
+    "French": "fr",
+    "German": "de",
+    "Hindi": "hi",
+    "Japanese": "ja",
+    "Korean": "ko",
+    "Chinese (Mandarin)": "zh-cn",
+    "Russian": "ru",
+    "Arabic": "ar"
+}
+
+# App Title
+st.title("🌍 Multi-Language Text to Speech")
+st.write("Convert text into speech in multiple languages with native speaker accents!")
+
+# Language Selection
+language = st.selectbox("Choose Language:", list(languages.keys()))
+
+# Text Input
+text = st.text_area("Enter Text:", placeholder="Type something...")
+
+# Function to check if input language matches selected language
+def check_language(text, selected_language):
+    # Detect the language of the input text
+    detected_lang = classify(text)[0]  # Get the detected language
+    selected_lang_code = languages[selected_language]
+    
+    if detected_lang != selected_lang_code:
+        return False
+    return True
+
+# Convert Text to Speech
+if st.button("Convert to Speech"):
+    if text:
+        if check_language(text, language):  # Check if input language matches the selected language
+            with st.spinner("Converting text to speech..."):
+                # Simulate some delay (you can remove this in the actual app)
+                time.sleep(2)  # Simulated delay to show spinner
+                
+                # Convert to speech
+                lang_code = languages[language]
+                speech = gTTS(text=text, lang=lang_code)
+                speech.save("audio.mp3")
+
+                # Audio playback
+                audio_file = open("audio.mp3", "rb")
+                audio_bytes = audio_file.read()
+                st.audio(audio_bytes, format='audio/mp3')
+                
+                # Option to Download Audio
+                st.download_button(label="Download Audio", data=audio_bytes, file_name='audio.mp3', mime='audio/mp3')
+        else:
+            st.warning(f"The input text is not in the selected language ({language}). Please enter text in {language}.")
+    else:
+        st.warning("Please enter some text to convert.")
+
+# Footer Section
+st.markdown("""
+    <style>
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #f1f1f1;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 14px;
+            color: #555;
+        }
+    </style>
+    <div class="footer">
+        <p>Made with ❤️ by Dhanashree S R | Multi-Language Text to Speech</p>
+    </div>
+""", unsafe_allow_html=True)
